@@ -48,36 +48,28 @@ diciAlunos = {
     ]
 }
 
-@app.route("/alunos", methods=['GET'])
-def get_alunos():
-    return jsonify(diciAlunos['alunos'])
+def buscar_todos_alunos():
+    return diciAlunos['alunos']
 
-@app.route("/alunos/<int:idAluno>", methods=['GET'])
-def get_aluno_by_id(idAluno):
-    aluno = next((a for a in diciAlunos['alunos'] if a['id'] == idAluno), None) 
-    if aluno:
-        return jsonify(aluno)
-    return jsonify({"erro": "Aluno não encontrado"}), 404
+def buscar_aluno_por_id(idAluno):
+    return next((a for a in diciAlunos['alunos'] if a['id'] == idAluno), None)
 
-@app.route("/alunos", methods=['POST'])
-def create_aluno():
-    novo_aluno = request.json
+def criar_aluno(dados):
+    novo_aluno = dados
+    novo_aluno['id'] = len(diciAlunos['alunos']) + 1
     diciAlunos['alunos'].append(novo_aluno)
-    return jsonify(novo_aluno), 201
+    return novo_aluno
 
-@app.route("/alunos/<int:idAluno>", methods=['PUT'])
-def update_aluno(idAluno):
+def atualizar_aluno(idAluno, dados):
     aluno = next((a for a in diciAlunos['alunos'] if a['id'] == idAluno), None)
     if aluno:
-        dados = request.json
         aluno.update(dados)
-        return jsonify(aluno)
-    return jsonify({"erro": "Aluno não encontrado"}), 404
+        return aluno
+    return None
 
-@app.route("/alunos/<int:idAluno>", methods=['DELETE'])
-def delete_aluno(idAluno):
+def deletar_aluno(idAluno):
     aluno = next((a for a in diciAlunos['alunos'] if a['id'] == idAluno), None)
     if aluno:
         diciAlunos['alunos'].remove(aluno)
-        return jsonify({"mensagem": f"Aluno com ID {idAluno} removido com sucesso"})
-    return jsonify({"erro": "Aluno não encontrado"}), 404
+        return aluno
+    return None

@@ -36,36 +36,28 @@ diciProfessor = {
         ]
 }
 
-@app.route("/professores", methods=['GET'])
-def get_professores():
-    return jsonify(diciProfessor['professores'])
+def buscar_todos_professores():
+    return diciProfessor['professores']
 
-@app.route("/professores/<int:idProfessor>", methods=['GET'])
-def get_professor_by_id(idProfessor):
-    professor = next((p for p in diciProfessor['professores'] if p['id'] == idProfessor), None)
-    if professor:
-        return jsonify(professor)
-    return jsonify({"erro": "Professor não encontrado"}), 404
+def buscar_professor_por_id(idProfessor):
+    return next((p for p in diciProfessor['professores'] if p['id'] == idProfessor), None)
 
-@app.route("/professores", methods=['POST'])
-def create_professor():
-    novo_professor = request.json
+def criar_professor(dados):
+    novo_professor = dados
+    novo_professor['id'] = len(diciProfessor['professores']) + 1
     diciProfessor['professores'].append(novo_professor)
-    return jsonify(novo_professor), 201
+    return novo_professor
 
-@app.route("/professores/<int:idProfessor>", methods=['PUT'])
-def update_professor(idProfessor):
+def atualizar_professor(idProfessor, dados):
     professor = next((p for p in diciProfessor['professores'] if p['id'] == idProfessor), None)
     if professor:
-        dados = request.json
         professor.update(dados)
-        return jsonify(professor)
-    return jsonify({"erro": "Professor não encontrado"}), 404
+        return professor
+    return None
 
-@app.route("/professores/<int:idProfessor>", methods=['DELETE'])
-def delete_professor(idProfessor):
+def deletar_professor(idProfessor):
     professor = next((p for p in diciProfessor['professores'] if p['id'] == idProfessor), None)
     if professor:
         diciProfessor['professores'].remove(professor)
-        return jsonify({"mensagem": f"Professor com ID {idProfessor} removido com sucesso"})
-    return jsonify({"erro": "Professor não encontrado"}), 404
+        return professor
+    return None

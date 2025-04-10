@@ -1,8 +1,8 @@
 from flask import Flask, jsonify, request
 # from models.model import dici
-from models.alunosMODEL import diciAlunos
-from models.professoresMODEL import diciProfessor
-from models.turmasMODEL import diciTurma
+from models.alunos_model import diciAlunos
+from models.professores_model import diciProfessor
+from models.turmas_model import diciTurma
 
 app = Flask(__name__)
 

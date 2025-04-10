@@ -41,36 +41,28 @@ diciTurma = {
         ]
     }
 
-@app.route("/turmas", methods=['GET'])
-def get_turmas():
-    return jsonify(diciTurma['turmas'])
+def buscar_todas_turmas():
+    return diciTurma['turmas']
 
-@app.route("/turmas/<int:idTurma>", methods=['GET'])
-def get_turma_by_id(idTurma):
-    turma = next((t for t in diciTurma['turmas'] if t['id'] == idTurma), None)
-    if turma:
-        return jsonify(turma)
-    return jsonify({"erro": "Turma não encontrada"}), 404
+def buscar_turma_por_id(idTurma):
+    return next((t for t in diciTurma['turmas'] if t['id'] == idTurma), None)
 
-@app.route("/turmas", methods=['POST'])
-def create_turma():
-    nova_turma = request.json
+def criar_turma(dados):
+    nova_turma = dados
+    nova_turma['id'] = len(diciTurma['turmas']) + 1
     diciTurma['turmas'].append(nova_turma)
-    return jsonify(nova_turma), 201
+    return nova_turma
 
-@app.route("/turmas/<int:idTurma>", methods=['PUT'])
-def update_turma(idTurma):
+def atualizar_turma(idTurma, dados):
     turma = next((t for t in diciTurma['turmas'] if t['id'] == idTurma), None)
     if turma:
-        dados = request.json
         turma.update(dados)
-        return jsonify(turma)
-    return jsonify({"erro": "Turma não encontrada"}), 404
+        return turma
+    return None
 
-@app.route("/turmas/<int:idTurma>", methods=['DELETE'])
-def delete_turma(idTurma):
+def deletar_turma(idTurma):
     turma = next((t for t in diciTurma['turmas'] if t['id'] == idTurma), None)
     if turma:
         diciTurma['turmas'].remove(turma)
-        return jsonify({"mensagem": f"Turma com ID {idTurma} removida com sucesso"})
-    return jsonify({"erro": "Turma não encontrada"}), 404
+        return turma
+    return None
