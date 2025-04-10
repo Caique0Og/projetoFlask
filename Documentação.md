@@ -46,4 +46,4 @@ Outro desafio foi a execução dos testes. No início, tivemos dificuldades prin
 
 5. Conclusão
 
-O projeto foi concluído com sucesso, com a API funcionando conforme os requisitos propostos. Todas as operações de CRUD para alunos, professores e turmas foram implementadas corretamente. Apesar dos desafios encontrados, a equipe conseguiu superar as dificuldades e entregar uma solução funcional, bem documentada e testada.
+O projeto foi concluído com sucesso, com a API funcionando conforme os requisitos propostos. Todas as operações de CRUD para alunos, professores e turmas foram implementadas corretamente. Apesar dos desafios encontrados, a equipe conseguiu superar as dificuldades e entregar uma solução funcional, bem documentada e testada. Esse projeto nos ensinou a importância de uma boa organização de código e da colaboração em equipe para resolver problemas técnicos.
