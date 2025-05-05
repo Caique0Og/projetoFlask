@@ -14,11 +14,11 @@ A API foi testada utilizando o Postman e o código foi versionado no GitHub, o q
 
 2. Função de Cada Integrante
 
-Jonatha e Caique: Responsáveis pelo desenvolvimento do código base, configuração do Flask e integração com o banco de dados.
+Jonatha e Caique: Responsáveis pelo desenvolvimento do código base, configuração do Flask e integração com o SQLAlchemy.
 
 Rafael e Letícia: Responsáveis pelos testes da API, garantindo que a aplicação lidasse corretamente com erros e entradas inválidas através do uso do try/catch.
 
-Otávio: Foi responsável pela documentação do projeto, detalhando o funcionamento da API, e contribuiu no desenvolvimento do código.
+Otávio: Foi responsável pela documentação do projeto, detalhando o funcionamento da API, contribuiu no desenvolvimento do Swagger e do SQLAlchemy.
 
 3. Funcionalidades do Projeto
 
@@ -36,8 +36,14 @@ A API, no geral, oferece uma forma prática e muito eficiente de gerenciar a vid
 
 4. Desafios Encontrados e Como Foram Resolvidos
 
-Um dos desafios foi a execução ao fazer os testes, especialmente com try/catch para lidar com erros. No começo, foi um pouco trabalhoso, mas, com o tempo, o processo funcionou com êxito ao realizar os testes necessários para garantir que a API funcionasse direitinho.
+Um dos desafios foi a execução ao fazer os testes, especialmente com try/catch para lidar com erros. No começo, foi um pouco trabalhoso, mas, com o tempo, o processo funcionou com êxito ao realizar os testes necessários para garantir que a API funcionasse direitinho. Durante o desenvolvimento do projeto, enfrentamos alguns desafios importantes que contribuíram para o aprimoramento do código e da estrutura da API.
+
+Um dos principais pontos foi a dificuldade em organizar corretamente a lógica da aplicação seguindo a arquitetura MVC. Inicialmente, a função de buscar um aluno por ID estava sendo feita diretamente dentro do model, o que não seguia as boas práticas. Dado isto, decidimos mover essa lógica para o controller, mantendo os models focados apenas na definição dos dados. Essa mudança tornou o código mais limpo e, de fácil manutenção.
+
+Além disso, estávamos com dúvida sobre como estruturar essa lógica no controller, mas após análise conjunta conseguimos implementar corretamente.
+
+Outro desafio foi a execução dos testes. No início, tivemos dificuldades principalmente com o uso de try/except para capturar erros e garantir que a API lidasse corretamente com entradas inválidas. Após algumas tentativas, os testes foram refeitos pelo Rafael, que assegurou que a API estivesse funcionando corretamente em todos os cenários esperados.
 
 5. Conclusão
 
-O projeto foi concluído com sucesso, com a API funcionando conforme os requisitos propostos. Todas as operações de CRUD para alunos, professores e turmas foram implementadas corretamente. Apesar dos desafios encontrados, a equipe conseguiu superar as dificuldades e entregar uma solução funcional, bem documentada e testada.
+O projeto foi concluído com sucesso, com a API funcionando conforme os requisitos propostos. Todas as operações de CRUD para alunos, professores e turmas foram implementadas corretamente. Apesar dos desafios encontrados, a equipe conseguiu superar as dificuldades e entregar uma solução funcional, bem documentada e testada. Esse projeto nos ensinou a importância de uma boa organização de código e da colaboração em equipe para resolver problemas técnicos.

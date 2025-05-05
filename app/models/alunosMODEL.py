@@ -1,79 +1,115 @@
-from flask import Flask, jsonify, request
-app = Flask(__name__)
+from datetime import datetime, date
+from config import db
 
-diciAlunos = {
-    "alunos": [
-        {
-            "id": 1,
-            "nome": "Amanda Silva",
-            "idade": 19,
-            "notas": [8.2, 7.5, 9.1],
-            "email": "amanda.silva@email.com"
-        },
-        {
-            "id": 2,
-            "nome": "Bruno Oliveira",
-            "idade": 22,
-            "notas": [9.5, 8.8, 9.9],
-            "email": "bruno.oliveira@email.com"
-        },
-        {
-            "id": 3,
-            "nome": "Carla Souza",
-            "idade": 20,
-            "notas": [7.0, 6.5, 7.8],
-            "email": "carla.souza@email.com"
-        },
-        {
-            "id": 4,
-            "nome": "Daniel Pereira",
-            "idade": 21,
-            "notas": [8.5, 9.2, 8.0],
-            "email": "daniel.pereira@email.com"
-        },
-        {
-            "id": 5,
-            "nome": "Elisa Martins",
-            "idade": 23,
-            "notas": [9.0, 8.7, 9.5],
-            "email": "elisa.martins@email.com"
-        },
-        {
-            "id": 6,
-            "nome": "Felipe Costa",
-            "idade": 18,
-            "notas": [6.5, 7.0, 7.2],
-            "email": "felipe.costa@email.com"
+class Aluno(db.Model):  
+    __tablename__ = "alunos"
+    
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(100), nullable=False)
+    idade = db.Column(db.Integer, nullable=False)
+    data_nascimento = db.Column(db.Date, nullable=False)
+    nota_primeiro_semestre = db.Column(db.Float, nullable=False)
+    nota_segundo_semestre = db.Column(db.Float, nullable=False)
+    media_final = db.Column(db.Float, nullable=False)
+    turmas = db.relationship("Turma", secondary="alunos_turmas", back_populates="alunos")
+    turma = db.relationship("Turma", back_populates="alunos")
+    turma_id = db.Column(db.Integer, db.ForeignKey("turmas.id"), nullable=False)
+
+    def __init__(self, nome, data_nascimento, nota_primeiro_semestre, nota_segundo_semestre, turma_id, media_final):
+        self.nome = nome
+        self.data_nascimento = data_nascimento
+        self.nota_primeiro_semestre = nota_primeiro_semestre
+        self.nota_segundo_semestre = nota_segundo_semestre
+        self.turma_id = turma_id
+        self.media_final = media_final
+        self.idade = self.calcular_idade()
+  
+    def calcular_idade(self):
+        today = date.today()
+        return today.year - self.data_nascimento.year - ((today.month, today.day) < (self.data_nascimento.month, self.data_nascimento.day))
+
+    def to_dict(self):  
+        return {
+            'id': self.id,
+            'nome': self.nome,
+            "idade": self.idade,
+            'data_nascimento': self.data_nascimento.isoformat(),
+            "nota_primeiro_semestre": self.nota_primeiro_semestre,
+            "nota_segundo_semestre": self.nota_segundo_semestre,
+            "turma_id": self.turma_id,
+            "media_final": self.media_final
         }
-    ]
-}
+  
+class AlunoNaoEncontrado(Exception):
+    pass
 
-@app.route("/alunos/<int:idAluno>", methods=['GET'])
-def get_aluno_by_id(idAluno):
-    aluno = next((a for a in diciAlunos['alunos'] if a['id'] == idAluno), None) 
-    if aluno:
-        return jsonify(aluno)
-    return jsonify({"erro": "Aluno não encontrado"}), 404
+def aluno_por_id(id_aluno):
+    aluno = Aluno.query.get(id_aluno)
+    if not aluno:
+        raise AlunoNaoEncontrado(f'Aluno não encontrado.')
+    return aluno.to_dict()
 
-@app.route("/alunos", methods=['POST'])
-def create_aluno():
-    novo_aluno = request.json
-    diciAlunos['alunos'].append(novo_aluno)
-    return jsonify(novo_aluno), 201
+def listar_alunos():
+    alunos = Aluno.query.all()
+    return [aluno.to_dict() for aluno in alunos]
 
-@app.route("/alunos/<int:idAluno>", methods=['PUT'])
-def update_aluno(idAluno):
-    aluno = next((a for a in diciAlunos['alunos'] if a['id'] == idAluno), None)
-    if aluno:
-        dados = request.json
-        aluno.update(dados)
-        return jsonify(aluno)
-    return jsonify({"erro": "Aluno não encontrado"}), 404
+def adicionar_aluno(novos_dados):
+    try:
+        from models.turmasMODEL import Turma  
+        
+        turma = Turma.query.get(novos_dados['turma_id'])
+        if turma is None:
+            return {"message": "Turma não existe"}, 404
 
-@app.route("/alunos/<int:idAluno>", methods=['DELETE'])
-def delete_aluno(idAluno):
-    aluno = next((a for a in diciAlunos['alunos'] if a['id'] == idAluno), None)
-    if aluno:
-        diciAlunos['alunos'].remove(aluno)
-        return jsonify({"mensagem": f"Aluno com ID {idAluno} removido com sucesso"})
-    return jsonify({"erro": "Aluno não encontrado"}), 404
+        try:
+            data_nascimento = datetime.strptime(novos_dados['data_nascimento'], "%Y-%m-%d").date()
+        except ValueError:
+            return {"message": "Data de nascimento inválida. Use o formato YYYY-MM-DD."}, 400
+
+        try:
+            nota_primeiro_semestre = float(novos_dados['nota_primeiro_semestre'])
+            nota_segundo_semestre = float(novos_dados['nota_segundo_semestre'])
+        except ValueError:
+            return {"message": "Notas devem ser numéricas."}, 400
+
+        media_final = (nota_primeiro_semestre + nota_segundo_semestre) / 2
+
+        novo_aluno = Aluno(
+            nome=novos_dados['nome'],
+            data_nascimento=data_nascimento,
+            nota_primeiro_semestre=nota_primeiro_semestre,
+            nota_segundo_semestre=nota_segundo_semestre,
+            turma_id=int(novos_dados['turma_id']),
+            media_final=media_final,
+        )
+
+        db.session.add(novo_aluno)
+        db.session.commit()
+        return {"message": "Aluno adicionado com sucesso!"}, 201
+
+    except Exception as e:
+        print(f"Erro ao adicionar aluno: {str(e)}")  
+        return {"error": f"Erro ao adicionar aluno: {str(e)}"}, 500
+
+def atualizar_aluno(id_aluno, novos_dados):
+    aluno = Aluno.query.get(id_aluno)
+    if not aluno:
+        raise AlunoNaoEncontrado
+
+    aluno.nome = novos_dados['nome']
+    aluno.data_nascimento = novos_dados['data_nascimento']
+    aluno.nota_primeiro_semestre = novos_dados['nota_primeiro_semestre']
+    aluno.nota_segundo_semestre = novos_dados['nota_segundo_semestre']
+    aluno.media_final = (aluno.nota_primeiro_semestre + aluno.nota_segundo_semestre) / 2
+    aluno.turma_id = novos_dados['turma_id']
+    aluno.idade = aluno.calcular_idade()
+    
+    db.session.commit()
+
+def excluir_aluno(id_aluno):
+    aluno = Aluno.query.get(id_aluno)
+    if not aluno:
+        raise AlunoNaoEncontrado(f'Aluno não encontrado.')
+
+    db.session.delete(aluno)
+    db.session.commit()
